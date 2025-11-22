@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.G02.Persistance.Data.Contexts
+namespace Store.G02.Persistence.Data.Contexts
 {
     public class StoreDbContext : DbContext
     {

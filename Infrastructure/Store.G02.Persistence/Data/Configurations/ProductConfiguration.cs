@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Store.G02.Persistance.Data.Configurations
+namespace Store.G02.Persistence.Data.Configurations
 {
     internal class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
