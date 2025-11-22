@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Store.G02.Domain.Contracts;
 using Store.G02.Domain.Entities.Products;
-using Store.G02.Persistance.Data.Contexts;
+using Store.G02.Persistence.Data.Contexts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Store.G02.Persistance
+namespace Store.G02.Persistence
 {
     public class DbInitializer(StoreDbContext _context) : IDbInitializer
     {
