@@ -13,9 +13,9 @@ namespace Store.G02.Presentation
     public class ProductsController(IServiceManager _serviceManager) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts(int? BrandId, int? TypeId)
+        public async Task<IActionResult> GetAllProducts(int? BrandId, int? TypeId, string? sort, string? search)
         {
-           var result = await _serviceManager.productService.GetAllProductsAsync(BrandId, TypeId);
+           var result = await _serviceManager.productService.GetAllProductsAsync(BrandId, TypeId, sort, search);
             if(result is null) return BadRequest("No products found");
             return Ok(result);
         }

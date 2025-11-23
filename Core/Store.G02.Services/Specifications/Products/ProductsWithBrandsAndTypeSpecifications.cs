@@ -14,15 +14,42 @@ namespace Store.G02.Services.Specifications.Products
         {
             ApplyIncludes();
         }
-        public ProductsWithBrandsAndTypeSpecifications(int? BrandId, int? TypeId) : base
+        public ProductsWithBrandsAndTypeSpecifications(int? BrandId, int? TypeId, string? sort, string? search) : base
             (
                 P=> 
                 (!BrandId.HasValue || P.BrandId == BrandId) 
                 &&
                 (!TypeId.HasValue || P.TypeId == TypeId)
+                &&
+                (string.IsNullOrEmpty(search) || P.Name.ToLower().Contains(search.ToLower()))
             )
         {
+           ApplySorting(sort);
+
             ApplyIncludes();
+        }
+
+        private void ApplySorting(string? sort)
+        {
+            if (!string.IsNullOrEmpty(sort))
+            {
+                switch (sort.ToLower())
+                {
+                    case "priceasc":
+                        AddOrderBy(P => P.Price);
+                        break;
+                    case "pricedesc":
+                        AddOrderByDescending(P => P.Price);
+                        break;
+                    default:
+                        AddOrderBy(P => P.Name);
+                        break;
+                }
+            }
+            else
+            {
+                AddOrderBy(P => P.Name);
+            }
         }
         private void ApplyIncludes()
         {
