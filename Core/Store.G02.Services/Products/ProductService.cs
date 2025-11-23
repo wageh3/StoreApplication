@@ -2,6 +2,8 @@
 using Store.G02.Domain.Contracts;
 using Store.G02.Domain.Entities.Products;
 using Store.G02.Services.Abstractions.Products;
+using Store.G02.Services.Specifications;
+using Store.G02.Services.Specifications.Products;
 using Store.G02.Shard.Dtos.Products;
 using System;
 using System.Collections.Generic;
@@ -14,17 +16,23 @@ namespace Store.G02.Services.Products
     internal class ProductService(IUnitOfWork _unitOfWork, IMapper _mapper) : IProductService
     {
 
-        public async Task<IEnumerable<ProductResponse>> GetAllProductsAsync()
+        public async Task<IEnumerable<ProductResponse>> GetAllProductsAsync(int? BrandId, int? TypeId)
         {
-            var products = await _unitOfWork.GetRepository<int, Product>().GetAllAsync();
+            //var spec = new BaseSpecificatios<int, Product>(null);
+            //spec.Includes.Add(P=>P.Brand);
+            //spec.Includes.Add(P => P.Type);
+
+            var spec = new ProductsWithBrandsAndTypeSpecifications(BrandId, TypeId);
+            var products = await _unitOfWork.GetRepository<int, Product>().GetAllAsync(spec);
             var result = _mapper.Map<IEnumerable<ProductResponse>>(products);
             return result;
         }
 
-        public Task<ProductResponse> GetProductByIdAsync(int id)
+        public async Task<ProductResponse> GetProductByIdAsync(int id)
         {
-           var product = _unitOfWork.GetRepository<int, Product>().GetAsync(id);
-           var result =_mapper.Map<Task<ProductResponse>>(product);
+           var spec = new ProductsWithBrandsAndTypeSpecifications(id);
+           var product = await _unitOfWork.GetRepository<int, Product>().GetAsync(spec);
+           var result = _mapper.Map<ProductResponse>(product);
            return result;
         }
 

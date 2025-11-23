@@ -12,7 +12,7 @@ namespace Store.G02.Persistence.Repositories
 {
     public class GenericRepository<TKey, TEntity> (StoreDbContext _context) : IGenericRepository<TKey, TEntity> where TEntity : BaseEntity<TKey>
     {
-
+        //Static Querrying
         public async Task<IEnumerable<TEntity>> GetAllAsync(bool changeTracker = false)
         {
             return changeTracker ?
@@ -37,6 +37,21 @@ namespace Store.G02.Persistence.Repositories
         public void Delete(TEntity entity)
         {
             _context.Remove(entity);
+        }
+        //Dynamic Querrying with Specifications Pattern
+        public async Task<IEnumerable<TEntity>> GetAllAsync(ISpecifications<TKey, TEntity> spec, bool changeTracker = false)
+        {
+            return await ApplySpecifications(spec).ToListAsync();
+        }
+
+        public async Task<TEntity?> GetAsync(ISpecifications<TKey, TEntity> spec)
+        {
+            return await ApplySpecifications(spec).FirstOrDefaultAsync();
+        }
+
+        private IQueryable<TEntity> ApplySpecifications(ISpecifications<TKey, TEntity> spec)
+        {
+            return SpecificationsEvaluator.GetQuery(_context.Set<TEntity>(), spec);
         }
     }
 }
