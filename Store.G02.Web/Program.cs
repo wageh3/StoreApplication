@@ -10,6 +10,7 @@ using Store.G02.Web.Middlewares;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc;
 using Store.G02.Shard.ErrorModels;
+using Store.G02.Web.Extensions;
 
 namespace Store.G02.Web
 {
@@ -20,66 +21,11 @@ namespace Store.G02.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            builder.Services.AddDbContext<StoreDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IServiceManager, ServiceManager>();
-            builder.Services.AddAutoMapper(M=>M.AddProfile(new ProductProfile(builder.Configuration)));
-
-            builder.Services.Configure<ApiBehaviorOptions>(config =>
-                {
-                    config.InvalidModelStateResponseFactory = (actioncontext) =>
-                    {
-                        var errors = actioncontext.ModelState
-                            .Where(e => e.Value.Errors.Any())
-                            .Select(e => new ValidationError
-                            {
-                                Field = e.Key,
-                                Errors = e.Value.Errors.Select(er => er.ErrorMessage)
-                            }).ToList();
-                        var response = new ValidationErrorResponse
-                        {
-                            StatusCode = StatusCodes.Status400BadRequest,
-                            ErrorMessage = "Validation Error !!",
-                            Errors = errors
-                        };
-                        return new BadRequestObjectResult(response);
-                    };
-                }
-
-
-                );
+            builder.Services.AddAllServices(builder.Configuration);
 
             var app = builder.Build();
 
-            #region Initialize DataBase
-            var scope = app.Services.CreateScope();
-            var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-            await dbInitializer.InitializeAsync();
-            #endregion
-            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
-            app.UseStaticFiles();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-            app.MapControllers();
+            await app.ConfigureAllMiddlewaresAsync();
 
             app.Run();
         }
