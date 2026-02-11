@@ -1,4 +1,5 @@
 ﻿using Store.G02.Domain.Entities.Products;
+using Store.G02.Shard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +15,18 @@ namespace Store.G02.Services.Specifications.Products
         {
             ApplyIncludes();
         }
-        public ProductsWithBrandsAndTypeSpecifications(int? BrandId, int? TypeId, string? sort, string? search) : base
+        public ProductsWithBrandsAndTypeSpecifications(ProductQueryParameters parameters) : base
             (
                 P=> 
-                (!BrandId.HasValue || P.BrandId == BrandId) 
+                (!parameters.BrandId.HasValue || P.BrandId == parameters.BrandId) 
                 &&
-                (!TypeId.HasValue || P.TypeId == TypeId)
+                (!parameters.TypeId.HasValue || P.TypeId == parameters.TypeId)
                 &&
-                (string.IsNullOrEmpty(search) || P.Name.ToLower().Contains(search.ToLower()))
+                (string.IsNullOrEmpty(parameters.Search) || P.Name.ToLower().Contains(parameters.Search.ToLower()))
             )
         {
-           ApplySorting(sort);
+            ApplyPagination(parameters.PageSize, parameters.PageIndex);
+            ApplySorting(parameters.Sort);
 
             ApplyIncludes();
         }
