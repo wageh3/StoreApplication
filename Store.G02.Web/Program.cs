@@ -6,6 +6,10 @@ using Store.G02.Persistence;
 using Store.G02.Services.Mapping.Products;
 using Store.G02.Services.Abstractions;
 using Store.G02.Services;
+using Store.G02.Web.Middlewares;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc;
+using Store.G02.Shard.ErrorModels;
 
 namespace Store.G02.Web
 {
@@ -30,6 +34,30 @@ namespace Store.G02.Web
             builder.Services.AddScoped<IServiceManager, ServiceManager>();
             builder.Services.AddAutoMapper(M=>M.AddProfile(new ProductProfile(builder.Configuration)));
 
+            builder.Services.Configure<ApiBehaviorOptions>(config =>
+                {
+                    config.InvalidModelStateResponseFactory = (actioncontext) =>
+                    {
+                        var errors = actioncontext.ModelState
+                            .Where(e => e.Value.Errors.Any())
+                            .Select(e => new ValidationError
+                            {
+                                Field = e.Key,
+                                Errors = e.Value.Errors.Select(er => er.ErrorMessage)
+                            }).ToList();
+                        var response = new ValidationErrorResponse
+                        {
+                            StatusCode = StatusCodes.Status400BadRequest,
+                            ErrorMessage = "Validation Error !!",
+                            Errors = errors
+                        };
+                        return new BadRequestObjectResult(response);
+                    };
+                }
+
+
+                );
+
             var app = builder.Build();
 
             #region Initialize DataBase
@@ -37,6 +65,7 @@ namespace Store.G02.Web
             var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
             await dbInitializer.InitializeAsync();
             #endregion
+            app.UseMiddleware<GlobalErrorHandlingMiddleware>();
             app.UseStaticFiles();
 
             // Configure the HTTP request pipeline.
