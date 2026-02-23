@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Store.G02.Persistence.Attributes;
 using Store.G02.Services.Abstractions;
 using Store.G02.Shard;
 using Store.G02.Shard.Dtos.Products;
@@ -20,6 +21,7 @@ namespace Store.G02.Presentation
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginationResponse<ProductResponse>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDetails))]
         [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetails))]
+        [Cache(60)]
         public async Task<ActionResult<PaginationResponse<ProductResponse>>> GetAllProducts([FromQuery] ProductQueryParameters parameters)
         {
             var result = await _serviceManager.productService.GetAllProductsAsync(parameters);

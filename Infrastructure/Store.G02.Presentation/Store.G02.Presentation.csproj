@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Store.G02.Services.Abstractions\Store.G02.Services.Abstractions.csproj" />
+    <ProjectReference Include="..\Store.G02.Persistence\Store.G02.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
