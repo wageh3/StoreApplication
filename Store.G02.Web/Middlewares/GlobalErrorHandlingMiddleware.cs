@@ -1,4 +1,6 @@
-﻿using Store.G02.Shard.ErrorModels;
+﻿using Store.G02.Domain.Exceptions.BadRequest;
+using Store.G02.Domain.Exceptions.NotFound;
+using Store.G02.Shard.ErrorModels;
 
 namespace Store.G02.Web.Middlewares
 {
@@ -28,11 +30,16 @@ namespace Store.G02.Web.Middlewares
             }
             catch (Exception ex)
             {
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                context.Response.StatusCode = ex switch
+                { 
+                    NotFoundException => StatusCodes.Status404NotFound,
+                    BadRequestException => StatusCodes.Status400BadRequest,
+                    _ => StatusCodes.Status500InternalServerError
+                };
                 context.Response.ContentType = "application/json";
                 var Response = new ErrorDetails() 
                 {
-                    StatusCode = StatusCodes.Status500InternalServerError
+                    StatusCode = context.Response.StatusCode
                     , ErrorMessage = ex.Message
                 };
                 await context.Response.WriteAsJsonAsync(Response);
