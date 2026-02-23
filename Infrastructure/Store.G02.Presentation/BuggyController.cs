@@ -21,7 +21,7 @@ namespace Store.G02.Presentation
         public ActionResult GetServerError()
         {
             throw new Exception("This is a server error");
-            return BadRequest();
+            //return BadRequest();
         }
         [HttpGet("badrequest")]
         public ActionResult GetBadRequest()

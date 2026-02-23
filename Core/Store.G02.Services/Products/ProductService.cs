@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Store.G02.Domain.Contracts;
 using Store.G02.Domain.Entities.Products;
+using Store.G02.Domain.Exceptions.NotFound;
+using Store.G02.Domain.Exceptions.NotFound.Products;
 using Store.G02.Services.Abstractions.Products;
 using Store.G02.Services.Specifications;
 using Store.G02.Services.Specifications.Products;
@@ -25,23 +27,26 @@ namespace Store.G02.Services.Products
 
             var spec = new ProductsWithBrandsAndTypeSpecifications(parameters);
             var products = await _unitOfWork.GetRepository<int, Product>().GetAllAsync(spec);
+            if(products is null) throw new ProductsNotFoundException();
             var result = _mapper.Map<IEnumerable<ProductResponse>>(products);
             var countSpec = new ProductCountSpecifications(parameters);
             var Count = await _unitOfWork.GetRepository<int, Product>().CountAsync(countSpec);
-            return new PaginationResponse<ProductResponse>(parameters.PageIndex,parameters.PageSize,Count, result);
+            return new PaginationResponse<ProductResponse>(parameters.PageIndex, parameters.PageSize, Count, result);
         }
 
         public async Task<ProductResponse> GetProductByIdAsync(int id)
         {
-           var spec = new ProductsWithBrandsAndTypeSpecifications(id);
-           var product = await _unitOfWork.GetRepository<int, Product>().GetAsync(spec);
-           var result = _mapper.Map<ProductResponse>(product);
-           return result;
+            var spec = new ProductsWithBrandsAndTypeSpecifications(id);
+            var product = await _unitOfWork.GetRepository<int, Product>().GetAsync(spec);
+            if (product == null) throw new ProductNotFoundException(id);
+            var result = _mapper.Map<ProductResponse>(product);
+            return result;
         }
 
         public async Task<IEnumerable<BrandTypeResponse>> GetAllBrandsAsync()
         {
             var brands = await _unitOfWork.GetRepository<int, ProductBrand>().GetAllAsync();
+            if(brands is null) throw new BrandsNotFoundException();
             var result = _mapper.Map<IEnumerable<BrandTypeResponse>>(brands);
             return result;
         }
@@ -49,10 +54,20 @@ namespace Store.G02.Services.Products
         public async Task<IEnumerable<BrandTypeResponse>> GetAllTypesAsync()
         {
             var types = await _unitOfWork.GetRepository<int, ProductType>().GetAllAsync();
+            if (types is null) throw new TypesNotFoundException();
             var result = _mapper.Map<IEnumerable<BrandTypeResponse>>(types);
             return result;
         }
 
-        
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            var spec = new ProductsWithBrandsAndTypeSpecifications(id);
+            var product = await _unitOfWork.GetRepository<int, Product>().GetAsync(spec);
+            if (product is null) throw new ProductNotFoundException(id);
+            _unitOfWork.GetRepository<int, Product>().Delete(product);
+            var result = await _unitOfWork.SaveChangesAsync();
+            return result > 0;
+
+        }
     }
 }

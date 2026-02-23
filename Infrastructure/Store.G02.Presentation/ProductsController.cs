@@ -17,13 +17,12 @@ namespace Store.G02.Presentation
     public class ProductsController(IServiceManager _serviceManager) : ControllerBase
     {
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(PaginationResponse<ProductResponse>))]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError,Type = typeof(ErrorDetails))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest,Type = typeof(ErrorDetails))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PaginationResponse<ProductResponse>))]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDetails))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetails))]
         public async Task<ActionResult<PaginationResponse<ProductResponse>>> GetAllProducts([FromQuery] ProductQueryParameters parameters)
         {
-           var result = await _serviceManager.productService.GetAllProductsAsync(parameters);
-            if(result is null) return BadRequest("No products found");
+            var result = await _serviceManager.productService.GetAllProductsAsync(parameters);
             return Ok(result);
         }
 
@@ -34,10 +33,9 @@ namespace Store.G02.Presentation
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorDetails))]
         public async Task<ActionResult<ProductResponse>> GetProductById(int? id)
         {
-            if(id is null)
+            if (id is null)
                 return BadRequest();
             var result = await _serviceManager.productService.GetProductByIdAsync(id.Value);
-            if(result is null) return NotFound();
             return Ok(result);
         }
         [HttpGet("brands")]
@@ -47,9 +45,9 @@ namespace Store.G02.Presentation
         public async Task<ActionResult<BrandTypeResponse>> GetAllBrands()
         {
             var result = await _serviceManager.productService.GetAllBrandsAsync();
-            if(result is null) return NotFound();
+            if (result is null) return NotFound();
             return Ok(result);
-        } 
+        }
         [HttpGet("types")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<BrandTypeResponse>))]
         [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDetails))]
@@ -57,8 +55,20 @@ namespace Store.G02.Presentation
         public async Task<ActionResult<BrandTypeResponse>> GetAllTypes()
         {
             var result = await _serviceManager.productService.GetAllTypesAsync();
-            if(result is null) return NotFound();
+            if (result is null) return NotFound();
             return Ok(result);
+        }
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ErrorDetails))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ErrorDetails))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ErrorDetails))]
+        public async Task<IActionResult> DeleteProduct(int? id)
+        {
+            if (id is null)
+                return BadRequest();
+            var result = await _serviceManager.productService.DeleteProductAsync(id.Value);
+            return Ok();
         }
     }
 }

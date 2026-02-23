@@ -14,6 +14,7 @@ namespace Store.G02.Services.Abstractions.Products
         Task<ProductResponse> GetProductByIdAsync(int id);
         Task<IEnumerable<BrandTypeResponse>> GetAllBrandsAsync();
         Task<IEnumerable<BrandTypeResponse>> GetAllTypesAsync();
+        Task<bool> DeleteProductAsync(int id);
 
     }
 }
