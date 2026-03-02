@@ -1,5 +1,6 @@
 ﻿using Store.G02.Domain.Exceptions.BadRequest;
 using Store.G02.Domain.Exceptions.NotFound;
+using Store.G02.Domain.Exceptions.Unauthorized;
 using Store.G02.Shard.ErrorModels;
 
 namespace Store.G02.Web.Middlewares
@@ -34,6 +35,7 @@ namespace Store.G02.Web.Middlewares
                 { 
                     NotFoundException => StatusCodes.Status404NotFound,
                     BadRequestException => StatusCodes.Status400BadRequest,
+                    UserUnauthorizedException => StatusCodes.Status401Unauthorized,
                     _ => StatusCodes.Status500InternalServerError
                 };
                 context.Response.ContentType = "application/json";

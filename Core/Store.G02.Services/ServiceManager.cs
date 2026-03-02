@@ -1,12 +1,19 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Store.G02.Domain.Contracts;
+using Store.G02.Domain.Entities.Identity;
 using Store.G02.Services.Abstractions;
+using Store.G02.Services.Abstractions.Auth;
 using Store.G02.Services.Abstractions.Baskets;
 using Store.G02.Services.Abstractions.Cache;
 using Store.G02.Services.Abstractions.Products;
+using Store.G02.Services.Auth;
 using Store.G02.Services.Baskets;
 using Store.G02.Services.Cache;
 using Store.G02.Services.Products;
+using Store.G02.Shard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +26,9 @@ namespace Store.G02.Services
         IUnitOfWork _unitOfWork,
         IMapper _mapper,
         IBasketRepository _basketRepository,
-        ICacheRepository _cacheRepository
+        ICacheRepository _cacheRepository,
+        UserManager<AppUser> _usermanager,
+        IOptions<JwtOptions> _options
         ) : IServiceManager
     {
         public IProductService productService { get; } = new ProductService(_unitOfWork, _mapper);
@@ -27,5 +36,6 @@ namespace Store.G02.Services
 
         public ICacheService cacheService { get; } = new CacheService(_cacheRepository);
 
+        public IAuthService authService { get; } = new AuthService(_usermanager, _options);
     }
 }
