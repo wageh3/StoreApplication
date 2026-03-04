@@ -1,4 +1,4 @@
-﻿using Store.G02.Domain.Entities.Products;
+﻿    using Store.G02.Domain.Entities.Products;
 using Store.G02.Shard;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Store.G02.Services.Specifications.Products
 {
-    public class ProductsWithBrandsAndTypeSpecifications : BaseSpecificatios<int, Product>
+    public class ProductsWithBrandsAndTypeSpecifications : BaseSpecifications<int, Product>
     {
         public ProductsWithBrandsAndTypeSpecifications(int id) : base(P => P.Id == id)
         {

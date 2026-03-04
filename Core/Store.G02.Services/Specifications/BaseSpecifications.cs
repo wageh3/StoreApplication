@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Store.G02.Services.Specifications
 {
-    public class BaseSpecificatios<TKey, TEntity> : ISpecifications<TKey, TEntity> where TEntity : BaseEntity<TKey>
+    public class BaseSpecifications<TKey, TEntity> : ISpecifications<TKey, TEntity> where TEntity : BaseEntity<TKey>
     {
         public List<Expression<Func<TEntity, object>>> Includes { get; set; } = new List<Expression<Func<TEntity, object>>>();
         public Expression<Func<TEntity, bool>>? Criteria { get; set; }
@@ -19,7 +19,7 @@ namespace Store.G02.Services.Specifications
         public int Take { get; set; }
         public bool IsPagination { get; set; }
 
-        public BaseSpecificatios(Expression<Func<TEntity, bool>>? expression)
+        public BaseSpecifications(Expression<Func<TEntity, bool>>? expression)
         {
             Criteria = expression;
         }
