@@ -8,10 +8,12 @@ using Store.G02.Services.Abstractions;
 using Store.G02.Services.Abstractions.Auth;
 using Store.G02.Services.Abstractions.Baskets;
 using Store.G02.Services.Abstractions.Cache;
+using Store.G02.Services.Abstractions.Orders;
 using Store.G02.Services.Abstractions.Products;
 using Store.G02.Services.Auth;
 using Store.G02.Services.Baskets;
 using Store.G02.Services.Cache;
+using Store.G02.Services.Orders;
 using Store.G02.Services.Products;
 using Store.G02.Shard;
 using System;
@@ -37,5 +39,6 @@ namespace Store.G02.Services
         public ICacheService cacheService { get; } = new CacheService(_cacheRepository);
 
         public IAuthService authService { get; } = new AuthService(_usermanager, _options);
+        public IOrderService orderService { get; } = new OrderService(_unitOfWork, _mapper, _basketRepository);
     }
 }

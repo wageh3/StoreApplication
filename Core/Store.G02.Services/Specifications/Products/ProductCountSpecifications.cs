@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Store.G02.Services.Specifications.Products
 {
-    public class ProductCountSpecifications : BaseSpecificatios<int, Product>
+    public class ProductCountSpecifications : BaseSpecifications<int, Product>
     {
         public ProductCountSpecifications(ProductQueryParameters parameters) : base 
             (
