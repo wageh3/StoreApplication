@@ -1,5 +1,7 @@
-﻿using AutoMapper.Configuration.Annotations;
+﻿using AutoMapper;
+using AutoMapper.Configuration.Annotations;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -20,8 +22,49 @@ using System.Threading.Tasks;
 
 namespace Store.G02.Services.Auth
 {
-    public class AuthService(UserManager<AppUser> _userManager, IOptions<JwtOptions> _options) : IAuthService
+    public class AuthService(UserManager<AppUser> _userManager, IOptions<JwtOptions> _options , IMapper _mapper) : IAuthService
     {
+        public async Task<bool> CheckEmailExistAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email) != null;
+        }
+
+        public async Task<UserResponce?> GetCurrentUserAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if(user is null) throw new UserNotFoundException(email);
+            return new UserResponce()
+            {
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = await CreateTokenAsync(user)
+            };
+
+        }
+        public async Task<AddressDto?> GetCurrentUserAddressAsync(string email)
+        {
+            var user = await _userManager.Users.Include(U => U.Address).FirstOrDefaultAsync(U => U.Email.ToLower() == email.ToLower());
+            if (user is null) throw new UserNotFoundException(email);
+            return _mapper.Map<AddressDto?>(user.Address);
+        }
+
+        public async Task<AddressDto> UpdateUserAddressAsync(AddressDto request, string email)
+        {
+            var user = await _userManager.Users.Include(U => U.Address).FirstOrDefaultAsync(U => U.Email.ToLower() == email.ToLower());
+            if (user is null) throw new UserNotFoundException(email);
+
+            if (user.Address is null)
+            {
+                user.Address = _mapper.Map<Address>(request);
+            }
+            else
+            {
+                //if error ocured u need to use manual mapping instead of automapper
+                _mapper.Map(request, user.Address);
+            }
+            await _userManager.UpdateAsync(user);
+            return _mapper.Map<AddressDto>(user.Address);
+        }
         public async Task<UserResponce> LoginAsync(LoginRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.Email);
@@ -59,7 +102,7 @@ namespace Store.G02.Services.Auth
             };
 
         }
-        
+
         private async Task<string> CreateTokenAsync(AppUser user)
         {
 
